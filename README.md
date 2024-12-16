@@ -8,8 +8,9 @@ report if something does not work as documented or expected. Contributions are
 welcome but there is no guarantee that they will be incorporated.
 
 
-Features
---------
+# Features
+
+## Old
 
 * Basic image operations, e.g. zooming, panning, rotating
 * Customizable key and mouse button mappings (in *config.h*)
@@ -19,9 +20,12 @@ Features
 * Load all frames from GIF files and play GIF animations
 * Display image information in status bar
 
+## New
 
-Screenshots
------------
+* Autoplay gifs
+
+
+# Screenshots
 
 **Image mode:**
 
@@ -32,8 +36,7 @@ Screenshots
 ![Thumb](http://xyb3rt.github.io/sxiv/img/thumb.png "Thumb mode")
 
 
-Dependencies
-------------
+# Dependencies
 
 sxiv requires the following software to be installed:
 
@@ -50,8 +53,7 @@ you want to build sxiv on a distribution with separate runtime and development
 packages (e.g. *-dev on Debian).
 
 
-Building
---------
+# Building
 
 sxiv is built using the commands:
 
@@ -75,20 +77,11 @@ the following command:
     $ make config.h
 
 
-Usage
------
+# Usage
 
 Please see the [man page](http://xyb3rt.github.io/sxiv/sxiv.1.html) for
 information on how to use sxiv.
 
-
-Download & Changelog
---------------------
-
-You can [browse](https://github.com/xyb3rt/sxiv) the source code repository
-on GitHub or get a copy using git with the following command:
-
-    git clone https://github.com/xyb3rt/sxiv.git
 
 **Stable releases**
 

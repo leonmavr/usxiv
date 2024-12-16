@@ -18,8 +18,9 @@ enum {
  * (first/last value is used as min/max zoom level)
  */
 static const float zoom_levels[] = {
-	 12.5,  25.0,  50.0,  75.0,
-	100.0, 150.0, 200.0, 400.0, 800.0
+	6.25,  12.5,  25.0,  50.0,  75.0,
+	100.0, 125.0, 150.0, 175.0, 200.0,
+    400.0, 800.0, 1200.0
 };
 
 /* default slideshow delay (in sec, overwritten via -S option): */

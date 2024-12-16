@@ -82,6 +82,18 @@ the following command:
 Please see the [man page](http://xyb3rt.github.io/sxiv/sxiv.1.html) for
 information on how to use sxiv.
 
+## Usage tips
+
+You can add your sxiv configuration options in youre `~/.Xresources` file as follows:
+
+```
+Sxiv.background: #000000
+Sxiv.foreground: #00C0FF
+Sxiv.font: Hack-9;
+```
+
+Then, execute `xrdb ~/.Xresources` for the changes to take place.
+
 
 **Stable releases**
 

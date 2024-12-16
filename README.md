@@ -22,7 +22,8 @@ welcome but there is no guarantee that they will be incorporated.
 
 ## New
 
-* Autoplay gifs
+* Autoplay gifs (me)
+* Fill scale mode with `-F` (@XPhyro)
 
 
 # Screenshots

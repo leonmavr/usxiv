@@ -30,7 +30,7 @@ const opt_t *options = (const opt_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-bcfhiopqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
+	printf("usage: sxiv [-bcfFhiopqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
 	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
 	       "FILES...\n");
 }
@@ -44,7 +44,7 @@ void parse_options(int argc, char **argv)
 {
 	int n, opt;
 	char *end, *s;
-	const char *scalemodes = "dfwh";
+	const char *scalemodes = "dfFwh";
 
 	progname = strrchr(argv[0], '/');
 	progname = progname ? progname + 1 : argv[0];

@@ -23,6 +23,7 @@ welcome but there is no guarantee that they will be incorporated.
 ## New
 
 * Autoplay gifs (me)
+* More zoom and pan levels (me)
 * Fill scale mode with `-F` (@XPhyro)
 
 

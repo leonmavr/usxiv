@@ -13,5 +13,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: dependencies
+      run: apt install -y \
+           libimlib2-dev \
+           libx11-dev \
+           libxft-dev \
+           libfreetype6-dev \
+           libfontconfig1-dev \
+           libgif-dev \
+           libexif-dev
     - name: make
       run: make

@@ -14,7 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: dependencies
-      run: sudo apt install -y \
+      run: sudo apt-get update &&
+           sudo apt install -y \
            libimlib2-dev \
            libx11-dev \
            libxft-dev \

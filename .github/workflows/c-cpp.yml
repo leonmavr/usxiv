@@ -13,15 +13,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: dependencies
-      run: sudo apt-get update &&
-           sudo apt install -y \
-           libimlib2-dev \
-           libx11-dev \
-           libxft-dev \
-           libfreetype6-dev \
-           libfontconfig1-dev \
-           libgif-dev \
-           libexif-dev
+    - name: Update apt cache and enable repositories
+      run: |
+        sudo apt-get update
+        sudo add-apt-repository universe
+        sudo add-apt-repository multiverse
+        sudo apt-get update
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y \
+          libimlib2-dev \
+          libx11-dev \
+          libxft-dev \
+          libfreetype6-dev \
+          libfontconfig1-dev \
+          libgif-dev \
+          libexif-dev
     - name: make
       run: make

@@ -54,13 +54,21 @@ Please make sure to install the corresponding development packages in case that
 you want to build sxiv on a distribution with separate runtime and development
 packages (e.g. *-dev on Debian).
 
+Install dependencies:
+
+| Ubuntu | Arch |
+|---|---|
+| `sudo apt update && sudo apt install -y build-essential pkg-config libimlib2-dev libx11-dev libxft-dev libfreetype6-dev libfontconfig1-dev libgif-dev libexif-dev` | `sudo pacman -Syu && sudo pacman -S --needed base-devel pkgconf imlib2 libx11 libxft freetype2 fontconfig giflib libexif` |
+
 
 # Building
 
 sxiv is built using the commands:
 
-    $ make
-    # make install
+```bash
+make
+sudo make install
+```
 
 Please note, that the latter one requires root privileges.
 By default, sxiv is installed using the prefix "/usr/local", so the full path
@@ -69,14 +77,18 @@ of the executable will be "/usr/local/bin/sxiv".
 You can install sxiv into a directory of your choice by changing the second
 command to:
 
-    # make PREFIX="/your/dir" install
+```bash
+sudo make PREFIX="/your/dir" install
+```
 
 The build-time specific settings of sxiv can be found in the file *config.h*.
 Please check and change them, so that they fit your needs.
 If the file *config.h* does not already exist, then you have to create it with
 the following command:
 
-    $ make config.h
+```bash
+make config.h
+```
 
 
 # Usage

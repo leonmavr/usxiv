@@ -374,18 +374,18 @@ void img_check_pan(img_t *img, bool moved)
 	ox = img->x;
 	oy = img->y;
 
-	if (w < win->w)
-		img->x = (win->w - w) / 2;
+	if (w < win->w_image)
+		img->x = (win->w_image - w) / 2;
 	else if (img->x > 0)
 		img->x = 0;
-	else if (img->x + w < win->w)
-		img->x = win->w - w;
-	if (h < win->h)
-		img->y = (win->h - h) / 2;
+	else if (img->x + w < win->w_image)
+		img->x = win->w_image - w;
+	if (h < win->h_image)
+		img->y = (win->h_image - h) / 2;
 	else if (img->y > 0)
 		img->y = 0;
-	else if (img->y + h < win->h)
-		img->y = win->h - h;
+	else if (img->y + h < win->h_image)
+		img->y = win->h_image - h;
 
 	if (!moved && (ox != img->x || oy != img->y))
 		img->dirty = true;
@@ -398,8 +398,8 @@ bool img_fit(img_t *img)
 	if (img->scalemode == SCALE_ZOOM)
 		return false;
 
-	zw = (float) img->win->w / (float) img->w;
-	zh = (float) img->win->h / (float) img->h;
+	zw = (float) img->win->w_image / (float) img->w;
+	zh = (float) img->win->h_image / (float) img->h;
 
 	switch (img->scalemode) {
 		case SCALE_FILL:
@@ -451,9 +451,9 @@ void img_render(img_t *img)
 	 */
 	if (img->x <= 0) {
 		sx = -img->x / img->zoom + 0.5;
-		sw = win->w / img->zoom;
+		sw = win->w_image / img->zoom;
 		dx = 0;
-		dw = win->w;
+		dw = win->w_image;
 	} else {
 		sx = 0;
 		sw = img->w;
@@ -462,9 +462,9 @@ void img_render(img_t *img)
 	}
 	if (img->y <= 0) {
 		sy = -img->y / img->zoom + 0.5;
-		sh = win->h / img->zoom;
+		sh = win->h_image / img->zoom;
 		dy = 0;
-		dh = win->h;
+		dh = win->h_image;
 	} else {
 		sy = 0;
 		sh = img->h;
@@ -523,8 +523,8 @@ bool img_fit_win(img_t *img, scalemode_t sm)
 	img->scalemode = sm;
 
 	if (img_fit(img)) {
-		img->x = img->win->w / 2 - (img->win->w / 2 - img->x) * img->zoom / oz;
-		img->y = img->win->h / 2 - (img->win->h / 2 - img->y) * img->zoom / oz;
+		img->x = img->win->w_image / 2 - (img->win->w_image / 2 - img->x) * img->zoom / oz;
+		img->y = img->win->h_image / 2 - (img->win->h_image / 2 - img->y) * img->zoom / oz;
 		img->checkpan = true;
 		return true;
 	} else {
@@ -543,9 +543,9 @@ bool img_zoom(img_t *img, float z)
 		int x, y;
 
 		win_cursor_pos(img->win, &x, &y);
-		if (x < 0 || x >= img->win->w || y < 0 || y >= img->win->h) {
-			x = img->win->w / 2;
-			y = img->win->h / 2;
+		if (x < 0 || x >= img->win->w_image || y < 0 || y >= img->win->h_image) {
+			x = img->win->w_image / 2;
+			y = img->win->h_image / 2;
 		}
 		img->x = x - (x - img->x) * z / img->zoom;
 		img->y = y - (y - img->y) * z / img->zoom;
@@ -620,8 +620,8 @@ bool img_pan(img_t *img, direction_t dir, int d)
 	if (d > 0) {
 		x = y = MAX(1, (float) d * img->zoom);
 	} else {
-		x = img->win->w / (d < 0 ? 1 : PAN_FRACTION);
-		y = img->win->h / (d < 0 ? 1 : PAN_FRACTION);
+		x = img->win->w_image / (d < 0 ? 1 : PAN_FRACTION);
+		y = img->win->h_image / (d < 0 ? 1 : PAN_FRACTION);
 	}
 
 	switch (dir) {
@@ -647,11 +647,11 @@ bool img_pan_edge(img_t *img, direction_t dir)
 	if (dir & DIR_LEFT)
 		img->x = 0;
 	if (dir & DIR_RIGHT)
-		img->x = img->win->w - img->w * img->zoom;
+		img->x = img->win->w_image - img->w * img->zoom;
 	if (dir & DIR_UP)
 		img->y = 0;
 	if (dir & DIR_DOWN)
-		img->y = img->win->h - img->h * img->zoom;
+		img->y = img->win->h_image - img->h * img->zoom;
 
 	img_check_pan(img, true);
 
@@ -678,11 +678,11 @@ void img_rotate(img_t *img, degree_t d)
 		}
 	}
 	if (d == DEGREE_90 || d == DEGREE_270) {
-		ox = d == DEGREE_90  ? img->x : img->win->w - img->x - img->w * img->zoom;
-		oy = d == DEGREE_270 ? img->y : img->win->h - img->y - img->h * img->zoom;
+		ox = d == DEGREE_90  ? img->x : img->win->w_image - img->x - img->w * img->zoom;
+		oy = d == DEGREE_270 ? img->y : img->win->h_image - img->y - img->h * img->zoom;
 
-		img->x = oy + (img->win->w - img->win->h) / 2;
-		img->y = ox + (img->win->h - img->win->w) / 2;
+		img->x = oy + (img->win->w_image - img->win->h_image) / 2;
+		img->y = ox + (img->win->h_image - img->win->w_image) / 2;
 
 		tmp = img->w;
 		img->w = img->h;

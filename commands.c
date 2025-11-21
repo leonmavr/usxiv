@@ -338,7 +338,7 @@ bool ci_drag(arg_t mode)
 	float px, py;
 	XEvent e;
 
-	if ((int)(img.w * img.zoom) <= win.w && (int)(img.h * img.zoom) <= win.h)
+	if ((int)(img.w * img.zoom) <= win.w_image && (int)(img.h * img.zoom) <= win.h_image)
 		return false;
 	
 	win_set_cursor(&win, CURSOR_DRAG);
@@ -349,10 +349,10 @@ bool ci_drag(arg_t mode)
 
 	for (;;) {
 		if (mode == DRAG_ABSOLUTE) {
-			px = MIN(MAX(0.0, x - win.w*0.1), win.w*0.8) / (win.w*0.8)
-			   * (win.w - img.w * img.zoom);
-			py = MIN(MAX(0.0, y - win.h*0.1), win.h*0.8) / (win.h*0.8)
-			   * (win.h - img.h * img.zoom);
+			px = MIN(MAX(0.0, x - win.w_image*0.1), win.w_image*0.8) / (win.w_image*0.8)
+			   * (win.w_image - img.w * img.zoom);
+			py = MIN(MAX(0.0, y - win.h_image*0.1), win.h_image*0.8) / (win.h_image*0.8)
+			   * (win.h_image - img.h * img.zoom);
 		} else {
 			px = img.x + x - ox;
 			py = img.y + y - oy;

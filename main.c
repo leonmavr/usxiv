@@ -394,7 +394,7 @@ int ptr_third_x(void)
 	int x, y;
 
 	win_cursor_pos(&win, &x, &y);
-	return MAX(0, MIN(2, (x / (win.w * 0.33))));
+	return MAX(0, MIN(2, (x / (win.w_image * 0.33))));
 }
 
 void redraw(void)

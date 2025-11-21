@@ -179,18 +179,18 @@ void win_open(win_t *win)
 		gmask = 0;
 	else
 		gmask = XParseGeometry(options->geometry, &win->x, &win->y,
-		                       &win->w, &win->h);
+		                       &win->w_image, &win->h_image);
 	if ((gmask & WidthValue) != 0)
 		sizehints.flags |= USSize;
 	else
-		win->w = WIN_WIDTH;
+		win->w_image = WIN_WIDTH;
 	if ((gmask & HeightValue) != 0)
 		sizehints.flags |= USSize;
 	else
-		win->h = WIN_HEIGHT;
+		win->h_image = WIN_HEIGHT;
 	if ((gmask & XValue) != 0) {
 		if ((gmask & XNegative) != 0) {
-			win->x += e->scrw - win->w;
+			win->x += e->scrw - win->w_image;
 			sizehints.win_gravity = NorthEastGravity;
 		}
 		sizehints.flags |= USPosition;
@@ -199,7 +199,7 @@ void win_open(win_t *win)
 	}
 	if ((gmask & YValue) != 0) {
 		if ((gmask & YNegative) != 0) {
-			win->y += e->scrh - win->h;
+			win->y += e->scrh - win->h_image;
 			sizehints.win_gravity = sizehints.win_gravity == NorthEastGravity
 			                      ? SouthEastGravity : SouthWestGravity;
 		}
@@ -209,7 +209,7 @@ void win_open(win_t *win)
 	}
 
 	win->xwin = XCreateWindow(e->dpy, parent,
-	                          win->x, win->y, win->w, win->h, 0,
+	                          win->x, win->y, win->w_image, win->h_image, 0,
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
 		error(EXIT_FAILURE, 0, "Error creating X window");
@@ -259,13 +259,13 @@ void win_open(win_t *win)
 
 	XSetWMProtocols(e->dpy, win->xwin, &atoms[ATOM_WM_DELETE_WINDOW], 1);
 
-	sizehints.width = win->w;
-	sizehints.height = win->h;
+	sizehints.width = win->w_image;
+	sizehints.height = win->h_image;
 	sizehints.x = win->x;
 	sizehints.y = win->y;
 	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
 
-	win->h -= win->bar.h;
+	win->h_image -= win->bar.h;
 
 	win->buf.w = e->scrw;
 	win->buf.h = e->scrh;
@@ -299,12 +299,12 @@ bool win_configure(win_t *win, XConfigureEvent *c)
 {
 	bool changed;
 
-	changed = win->w != c->width || win->h + win->bar.h != c->height;
+	changed = win->w_image != c->width || win->h_image + win->bar.h != c->height;
 
 	win->x = c->x;
 	win->y = c->y;
-	win->w = c->width;
-	win->h = c->height - win->bar.h;
+	win->w_image = c->width;
+	win->h_image = c->height - win->bar.h;
 	win->bw = c->border_width;
 
 	return changed;
@@ -332,11 +332,11 @@ void win_toggle_fullscreen(win_t *win)
 void win_toggle_bar(win_t *win)
 {
 	if (win->bar.h != 0) {
-		win->h += win->bar.h;
+		win->h_image += win->bar.h;
 		win->bar.h = 0;
 	} else {
 		win->bar.h = barheight;
-		win->h -= win->bar.h;
+		win->h_image -= win->bar.h;
 	}
 }
 
@@ -346,10 +346,10 @@ void win_clear(win_t *win)
 
 	e = &win->env;
 
-	if (win->w > win->buf.w || win->h + win->bar.h > win->buf.h) {
+	if (win->w_image > win->buf.w || win->h_image + win->bar.h > win->buf.h) {
 		XFreePixmap(e->dpy, win->buf.pm);
-		win->buf.w = MAX(win->buf.w, win->w);
-		win->buf.h = MAX(win->buf.h, win->h + win->bar.h);
+		win->buf.w = MAX(win->buf.w, win->w_image);
+		win->buf.h = MAX(win->buf.h, win->h_image + win->bar.h);
 		win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
 		                            win->buf.w, win->buf.h, e->depth);
 	}
@@ -427,28 +427,28 @@ void win_draw_bar(win_t *win)
 		return;
 
 	e = &win->env;
-	y = win->h + font->ascent + V_TEXT_PAD;
-	w = win->w - 2*H_TEXT_PAD;
+	y = win->h_image + font->ascent + V_TEXT_PAD;
+	w = win->w_image - 2*H_TEXT_PAD;
 	d = XftDrawCreate(e->dpy, win->buf.pm, DefaultVisual(e->dpy, e->scr),
 	                  DefaultColormap(e->dpy, e->scr));
 
 	/* Draw a semi-transparent bar overlay */
 	if (win->bar_alpha >= 255) {
 		XSetForeground(e->dpy, gc, win->fg.pixel);
-		XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
+		XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h_image, win->w_image, win->bar.h);
 	} else {
 		int r8 = win->fg.color.red >> 8;
 		int g8 = win->fg.color.green >> 8;
 		int b8 = win->fg.color.blue >> 8;
-		Imlib_Image bar = imlib_create_image(win->w, win->bar.h);
+		Imlib_Image bar = imlib_create_image(win->w_image, win->bar.h);
 		if (bar != NULL) {
 			imlib_context_set_image(bar);
 			imlib_image_set_has_alpha(1);
 			imlib_context_set_color(r8, g8, b8, win->bar_alpha);
-			imlib_image_fill_rectangle(0, 0, win->w, win->bar.h);
+			imlib_image_fill_rectangle(0, 0, win->w_image, win->bar.h);
 			imlib_context_set_drawable(win->buf.pm);
 			imlib_context_set_blend(1);
-			imlib_render_image_on_drawable(0, win->h);
+			imlib_render_image_on_drawable(0, win->h_image);
 			imlib_free_image();
 		}
 	}
@@ -459,7 +459,7 @@ void win_draw_bar(win_t *win)
 	if ((len = strlen(r->buf)) > 0) {
 		if ((tw = TEXTWIDTH(win, r->buf, len)) > w)
 			return;
-		x = win->w - tw - H_TEXT_PAD;
+		x = win->w_image - tw - H_TEXT_PAD;
 		w -= tw;
 		win_draw_text(win, d, &win->bg, x, y, r->buf, len, tw);
 	}

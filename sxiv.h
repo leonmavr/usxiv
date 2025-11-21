@@ -410,6 +410,9 @@ struct win {
 
 	XftColor bg;
 	XftColor fg;
+	/* Checkerboard colors (primary/secondary) */
+	XftColor cb1;
+	XftColor cb2;
 
 	int x;
 	int y;

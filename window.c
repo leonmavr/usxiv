@@ -93,6 +93,8 @@ void win_init(win_t *win)
 {
 	win_env_t *e;
 	const char *bg, *fg, *f;
+	/* background checkerboard colors */
+	const char *cb1, *cb2;
 	char *res_man;
 	XrmDatabase db;
 
@@ -121,8 +123,13 @@ void win_init(win_t *win)
 
 	bg = win_res(db, RES_CLASS ".background", "white");
 	fg = win_res(db, RES_CLASS ".foreground", "black");
+	/* Checker colors: default to background and white */
+	cb1 = win_res(db, RES_CLASS ".checkerPrimary", bg);
+	cb2 = win_res(db, RES_CLASS ".checkerSecondary", "white");
 	win_alloc_color(e, bg, &win->bg);
 	win_alloc_color(e, fg, &win->fg);
+	win_alloc_color(e, cb1, &win->cb1);
+	win_alloc_color(e, cb2, &win->cb2);
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
@@ -340,8 +347,30 @@ void win_clear(win_t *win)
 		win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
 		                            win->buf.w, win->buf.h, e->depth);
 	}
-	XSetForeground(e->dpy, gc, win->bg.pixel);
-	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
+	/* Draw checkerboard background instead of solid fill */
+	{
+		const int tile = 20; /* 20px squares */
+		unsigned long c0 = win->cb1.pixel; /* primary checker color */
+		unsigned long c1 = win->cb2.pixel; /* secondary checker color */
+		/* Ensure contrast if both colors end up identical */
+		if (c0 == c1) {
+			XColor exact, screen;
+			if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr),
+								  "gray70", &screen, &exact))
+			{
+				c0 = screen.pixel;
+			}
+		}
+		int x, y, wrem, hrem;
+		for (y = 0; y < (int)win->buf.h; y += tile) {
+			hrem = ((y + tile) <= (int)win->buf.h) ? tile : (int)win->buf.h - y;
+			for (x = 0; x < (int)win->buf.w; x += tile) {
+				wrem = ((x + tile) <= (int)win->buf.w) ? tile : (int)win->buf.w - x;
+				XSetForeground(e->dpy, gc, (((x / tile) + (y / tile)) & 1) ? c1 : c0);
+				XFillRectangle(e->dpy, win->buf.pm, gc, x, y, wrem, hrem);
+			}
+		}
+	}
 }
 
 #define TEXTWIDTH(win, text, len) \

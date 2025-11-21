@@ -417,8 +417,8 @@ struct win {
 
 	int x;
 	int y;
-	unsigned int w;
-	unsigned int h; /* = win height - bar height */
+	unsigned int w_image;
+	unsigned int h_image; /* = win height - bar height */
 	unsigned int bw;
 
 	struct {

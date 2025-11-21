@@ -33,7 +33,7 @@
 
 enum {
 	H_TEXT_PAD = 5,
-	V_TEXT_PAD = 1
+	V_TEXT_PAD = 3
 };
 
 static struct {
@@ -118,7 +118,7 @@ void win_init(win_t *win)
 	res_man = XResourceManagerString(e->dpy);
 	db = res_man != NULL ? XrmGetStringDatabase(res_man) : None;
 
-	f = win_res(db, RES_CLASS ".font", "monospace-8");
+	f = win_res(db, RES_CLASS ".font", "monospace-12");
 	win_init_font(e, f);
 
 	bg = win_res(db, RES_CLASS ".background", "white");
@@ -130,6 +130,12 @@ void win_init(win_t *win)
 	win_alloc_color(e, fg, &win->fg);
 	win_alloc_color(e, cb1, &win->cb1);
 	win_alloc_color(e, cb2, &win->cb2);
+	const char *bar_alpha_str;
+	/* Bar transparency (0..255), default slightly transparent */
+	bar_alpha_str = win_res(db, RES_CLASS ".barAlpha", "220");
+	win->bar_alpha = (int) strtol(bar_alpha_str, NULL, 0);
+	if (win->bar_alpha < 0) win->bar_alpha = 0;
+	if (win->bar_alpha > 255) win->bar_alpha = 255;
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
@@ -426,8 +432,26 @@ void win_draw_bar(win_t *win)
 	d = XftDrawCreate(e->dpy, win->buf.pm, DefaultVisual(e->dpy, e->scr),
 	                  DefaultColormap(e->dpy, e->scr));
 
-	XSetForeground(e->dpy, gc, win->fg.pixel);
-	XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
+	/* Draw a semi-transparent bar overlay */
+	if (win->bar_alpha >= 255) {
+		XSetForeground(e->dpy, gc, win->fg.pixel);
+		XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
+	} else {
+		int r8 = win->fg.color.red >> 8;
+		int g8 = win->fg.color.green >> 8;
+		int b8 = win->fg.color.blue >> 8;
+		Imlib_Image bar = imlib_create_image(win->w, win->bar.h);
+		if (bar != NULL) {
+			imlib_context_set_image(bar);
+			imlib_image_set_has_alpha(1);
+			imlib_context_set_color(r8, g8, b8, win->bar_alpha);
+			imlib_image_fill_rectangle(0, 0, win->w, win->bar.h);
+			imlib_context_set_drawable(win->buf.pm);
+			imlib_context_set_blend(1);
+			imlib_render_image_on_drawable(0, win->h);
+			imlib_free_image();
+		}
+	}
 
 	XSetForeground(e->dpy, gc, win->bg.pixel);
 	XSetBackground(e->dpy, gc, win->fg.pixel);

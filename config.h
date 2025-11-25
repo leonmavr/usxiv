@@ -32,7 +32,7 @@ static const double GAMMA_MAX   = 10.0;
 static const int    GAMMA_RANGE = 32;
 
 /* command i_scroll pans image 1/PAN_FRACTION of screen width/height */
-static const int PAN_FRACTION = 5;
+static const int PAN_FRACTION = 20;
 
 /* if false, pixelate images at zoom level != 100%,
  * toggled with 'a' key binding

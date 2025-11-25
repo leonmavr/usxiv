@@ -26,13 +26,18 @@
 #include <unistd.h>
 #include <errno.h>
 #include <locale.h>
+#include <pwd.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/select.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
+#include <unistd.h>
 
 typedef struct {
 	struct timeval when;
@@ -817,6 +822,38 @@ void setup_signal(int sig, void (*handler)(int sig))
 		error(EXIT_FAILURE, errno, "signal %d", sig);
 }
 
+// execute the command xrdb ~/.Xresources to let the changes take place
+int run_xrdb(void) {
+    struct passwd *pw = getpwuid(getuid());
+    if (!pw) {
+        perror("getpwuid");
+        return -1;
+    }
+    char xr_file[512];
+    snprintf(xr_file, sizeof(xr_file), "%s/.Xresources", pw->pw_dir);
+    char *args[] = {
+        "xrdb",
+        xr_file,
+        NULL
+    };
+    pid_t pid = fork();
+    if (pid == 0) {
+        // child process
+        execvp("xrdb", args);
+        exit(1);
+    }
+    if (pid < 0) {
+        // fork faield - silently leave
+        perror("fork failed");
+    }
+    perror("execvp");
+    // parent process: wait for xrdb to finish
+    int status;
+    waitpid(pid, &status, 0);
+
+    return status;
+}
+
 int main(int argc, char **argv)
 {
 	int i, start;
@@ -831,6 +868,7 @@ int main(int argc, char **argv)
 	setup_signal(SIGPIPE, SIG_IGN);
 
 	setlocale(LC_COLLATE, "");
+    run_xrdb();
 
 	parse_options(argc, argv);
 

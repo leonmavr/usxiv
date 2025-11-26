@@ -843,10 +843,9 @@ int run_xrdb(void) {
         exit(1);
     }
     if (pid < 0) {
-        // fork faield - silently leave
         perror("fork failed");
     }
-    perror("execvp");
+    //perror("execvp");
     // parent process: wait for xrdb to finish
     int status;
     waitpid(pid, &status, 0);
